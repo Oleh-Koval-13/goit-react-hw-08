@@ -1,36 +1,43 @@
 import css from "./Contact.module.css";
-import { AiFillContacts } from "react-icons/ai";
-import { AiFillPhone } from "react-icons/ai";
-import { useDispatch } from 'react-redux';
-import { deleteContact } from '../../redux/contactsOps'; 
-import toast from 'react-hot-toast';
+import { FaPhoneAlt } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
+import { useState } from "react";
+import ModalContact from "../../components/Modal/Modal";
 
-const Contact = ({ contact: { name, number, id } }) => {
-  const dispatch = useDispatch();
+export default function Contact({ contact: { id, name, number } }) {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
   return (
-    <>
-      <li className={css.listItem}>
-        <div className={css.iconContainer}>
-          <AiFillContacts size={22}/>
-          <AiFillPhone size={22}/>
-        </div>
-        <div className={css.textContainer}>
-          <p className={css.text}>{name}</p>
-          <p className={css.text}>{number}</p>
-        </div>
-        <button className={css.btn} onClick={() => dispatch(deleteContact(id))
-        .unwrap()
-        .then(() => {
-        toast.success('Contact deleted');
-      })
-        .catch(() => {
-        toast.error('Error deleting contact');
-      })}>Delete</button>
-      </li>
-    </>
+    <div className={css.listItem}>
+      <ul className={css.infoBlock}>
+        <li className={css.wrap}>
+          <FaUser />
+          <p>{name}</p>
+        </li>
+        <li className={css.wrap}>
+          <FaPhoneAlt />
+          <p>{number}</p>
+        </li>
+      </ul>
+      <button className={css.button} onClick={openModal} id={id}>
+        Delete
+      </button>
+      {modalIsOpen && (
+        <ModalContact
+          onClose={closeModal}
+          isOpen={modalIsOpen}
+          id={id}
+          name={name}
+        />
+      )}
+    </div>
   );
-};
-
-export default Contact;
+}

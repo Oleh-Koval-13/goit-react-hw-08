@@ -1,62 +1,62 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
-import { addContact } from "../../redux/contactsOps";
 import css from "./ContactForm.module.css";
-import toast from 'react-hot-toast';
+import * as Yup from "yup";
+import { addContact } from "../../redux/contacts/operations";
+import { useDispatch } from "react-redux";
+import toast from "react-hot-toast";
+
+const FeedbackSchema = Yup.object().shape({
+  name: Yup.string()
+    .min(3, "To Short!")
+    .max(50, "To Long!")
+    .required("Required"),
+  number: Yup.string().required("Required"),
+});
 
 const ContactForm = () => {
   const dispatch = useDispatch();
 
-  const validationSchema = Yup.object({
-    name: Yup.string()
-      .required("Name is required")
-      .min(3, "Name must be at least 3 characters")
-      .max(50, "Name must be at most 50 characters"),
-    number: Yup.string()
-      .required("Number is required")
-      .min(3, "Number must be at least 3 characters")
-      .max(50, "Number must be at most 50 characters"),
-  });
-
-  const handleSubmit = (values, { resetForm }) => {
-  const contact = {
-    name: values.name,
-    number: values.number
-  };
-
-    dispatch(addContact(contact))
+  const handleSubmit = (value, action) => {
+    dispatch(addContact(value))
       .unwrap()
       .then(() => {
-        toast.success('Contact added');
+        toast.success("Contact created successfully");
       })
       .catch(() => {
-        toast.error('Error adding contact');
-      });
-  resetForm();
+        toast.error("An error occurred");
+      }),
+      action.resetForm();
   };
-  
+
+  const initialValues = {
+    name: "",
+    number: "",
+  };
   return (
     <Formik
-      initialValues={{ name: '', number: '' }}
+      initialValues={initialValues}
       onSubmit={handleSubmit}
-      validationSchema={validationSchema}
+      validationSchema={FeedbackSchema}
     >
-      <Form className={css.form}>
-        <div className={css.label}>
-          <label htmlFor='name'>Name</label>
-          <Field type="text" id="name" name="name" />
-          <ErrorMessage name="name" component="div" className={css.error} />
-        </div>
-        <div className={css.label}>
-          <label htmlFor='number'>Number</label>
-          <Field type="text" id="number" name="number" />
-          <ErrorMessage name="number" component="div" className={css.error} />
-        </div>
-        <button type="submit" className={css.formBtn}>Add Contact</button>
+      <Form className={css.wrapForm}>
+        <label className={css.label}>
+          Name
+          <Field className={css.input} type="text" name="name" />
+          <ErrorMessage className={css.error} name="name" component="div" />
+        </label>
+
+        <label className={css.label}>
+          Number
+          <Field className={css.input} type="tel" name="number" />
+          <ErrorMessage className={css.error} name="number" component="div" />
+        </label>
+
+        <button className={css.button} type="submit">
+          Add contact
+        </button>
       </Form>
-      </Formik>
-  )
-}
+    </Formik>
+  );
+};
 
 export default ContactForm;
